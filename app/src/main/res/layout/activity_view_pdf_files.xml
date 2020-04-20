@@ -5,14 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="20dp"
-    tools:context=".Activities.View_pdf_files">
+    tools:context=".Activities.View_pdf_files"
+    >
 
     <ListView
          android:id="@+id/mylistview"
          android:layout_width="match_parent"
          android:layout_height="match_parent"
-         android:padding="10dp" >
-
+         android:padding="10dp"
+        >
     </ListView>
 
 

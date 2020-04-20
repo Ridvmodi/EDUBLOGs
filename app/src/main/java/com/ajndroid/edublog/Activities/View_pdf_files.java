@@ -22,33 +22,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class View_pdf_files extends AppCompatActivity {
+
     ListView myPDFlistview;
     DatabaseReference databaseReference;
     List<uploadPDF> uploadPDFS;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-   setContentView(R.layout.activity_view_pdf_files);
+        setContentView(R.layout.activity_view_pdf_files);
         myPDFlistview= findViewById(R.id.mylistview);
-     uploadPDFS=new ArrayList<uploadPDF>();
+        uploadPDFS=new ArrayList<uploadPDF>();
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        viewALLfiles();
+
+        myPDFlistview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                uploadPDF uploadPDF =  uploadPDFS.get(position);
 
 
-viewALLfiles();
-myPDFlistview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-uploadPDF uploadPDF =  uploadPDFS.get(position);
+                Intent MyIntent = new Intent(Intent.ACTION_VIEW);
 
+                MyIntent.setData(Uri.parse(uploadPDF.getUrl()));
 
-        Intent MyIntent = new Intent(Intent.ACTION_VIEW);
-
-        MyIntent.setData(Uri.parse(uploadPDF.getUrl()));
-
-        startActivity(MyIntent);
-    }
-});
-
-
+                startActivity(MyIntent);
+            }
+        });
     }
 
     private void viewALLfiles() {
@@ -65,16 +66,14 @@ uploadPDF uploadPDF =  uploadPDFS.get(position);
                 uploads[i] = uploadPDFS.get(i).getName();
 
             }
-                ArrayAdapter<String> adapter= new ArrayAdapter<String>(getApplicationContext(),android.R.layout.simple_list_item_1,uploads);
+            ArrayAdapter<String> adapter= new ArrayAdapter<String>(View_pdf_files.this,android.R.layout.simple_list_item_1,uploads);
 
+            myPDFlistview.setAdapter(adapter);
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-
-        myPDFlistview.setAdapter(adapter);
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+                }
+            });
     }
 }

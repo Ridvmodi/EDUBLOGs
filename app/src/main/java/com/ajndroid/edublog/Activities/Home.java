@@ -39,8 +39,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -59,6 +62,8 @@ public class Home extends AppCompatActivity
     ProgressBar popupClickProgress;
     private Uri pickedImgUri = null;
 
+    private DatabaseReference mDatabase;
+    private String mRole = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,17 +77,39 @@ public class Home extends AppCompatActivity
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
 
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("Roles");
+
         // ini popup
         iniPopup();
         setupPopupImageClick();
 
 
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setVisibility(View.INVISIBLE);
+
+        mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onClick(View view) {
-                popAddPost.show();
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String role = dataSnapshot.child(mAuth.getCurrentUser().getUid()).getValue().toString();
+
+                mRole = role;
+
+                if (role.equals("Admin")) {
+                    fab.setVisibility(View.VISIBLE);
+                    fab.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            popAddPost.show();
+                        }
+                    });
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
             }
         });
 
@@ -373,11 +400,15 @@ public class Home extends AppCompatActivity
         } else if (id == R.id.nav_pdf) {
 
             getSupportActionBar().setTitle("PDF's");
-         ///   getSupportFragmentManager().beginTransaction().replace(R.id.container,new SettingsFragment()).commit();
-            Intent Intent = new Intent(Home.this,pdfupload.class);
-            startActivity(Intent);
 
+            Intent intent;
 
+            if (mRole.equals("Admin")) {
+                intent = new Intent(Home.this,pdfupload.class);
+            } else {
+                intent = new Intent(Home.this, View_pdf_files.class);
+            }
+            startActivity(intent);
         }
         else if (id == R.id.nav_signout) {
 

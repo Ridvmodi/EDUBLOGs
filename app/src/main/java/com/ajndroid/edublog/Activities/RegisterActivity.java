@@ -6,11 +6,14 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,49 +25,97 @@ import com.ajndroid.edublog.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
-public class RegisterActivity extends AppCompatActivity {
+import java.util.concurrent.TimeUnit;
 
+public class RegisterActivity extends AppCompatActivity {
 
     ImageView ImgUserPhoto;
     static int PReqCode = 1 ;
     static int REQUESCODE = 1 ;
     Uri pickedImgUri ;
     private boolean isChanged = false;
+    private boolean isOtpSent = false;
 
-    private EditText userEmail,userPassword,userPAssword2,userName;
+    private Intent HomeActivity;
+
+    private EditText userName,userMobNo,userOtp;
     private ProgressBar loadingProgress;
     private Button regBtn;
 
+    private RadioGroup radioGroup;
+    private RadioButton userRadio;
+    private RadioButton adminRadio;
+
     private FirebaseAuth mAuth;
-
-
+    private DatabaseReference mDatabase;
+    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
+    private String otpSent = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+        HomeActivity = new Intent(this,com.ajndroid.edublog.Activities.Home.class);
+
         //ini views
-        userEmail = findViewById(R.id.regMail);
-        userPassword = findViewById(R.id.regPassword);
-        userPAssword2 = findViewById(R.id.regPassword2);
         userName = findViewById(R.id.regName);
+        userMobNo = findViewById(R.id.reg_mob_no);
+        userOtp = findViewById(R.id.regOtp);
         loadingProgress = findViewById(R.id.regProgressBar);
         regBtn = findViewById(R.id.regBtn);
         loadingProgress.setVisibility(View.INVISIBLE);
 
+        radioGroup = findViewById(R.id.radio_group);
+        userRadio = findViewById(R.id.user_radio);
+        adminRadio = findViewById(R.id.admin_radio);
 
         mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("Roles");
+
+        mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+            @Override
+            public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
+
+            }
+
+            @Override
+            public void onVerificationFailed(@NonNull FirebaseException e) {
+                if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                    userMobNo.setError("Enter correct mob no");
+                    userMobNo.requestFocus();
+                    return;
+                }
+            }
+
+            @Override
+            public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+                super.onCodeSent(s, forceResendingToken);
+
+                isOtpSent = true;
+                otpSent = s;
+                userOtp.setVisibility(View.VISIBLE);
+                regBtn.setVisibility(View.VISIBLE);
+                loadingProgress.setVisibility(View.INVISIBLE);
+
+            }
+        };
 
 
         regBtn.setOnClickListener(new View.OnClickListener() {
@@ -73,37 +124,49 @@ public class RegisterActivity extends AppCompatActivity {
 
                 regBtn.setVisibility(View.INVISIBLE);
                 loadingProgress.setVisibility(View.VISIBLE);
-                final String email = userEmail.getText().toString();
-                final String password = userPassword.getText().toString();
-                final String password2 = userPAssword2.getText().toString();
                 final String name = userName.getText().toString();
+                String mobNo = userMobNo.getText().toString();
+                String otp = "";
+                String role = "";
 
-                if( email.isEmpty() || name.isEmpty() || password.isEmpty()  || !password.equals(password2)) {
-
-
+                if( name.isEmpty() || mobNo.isEmpty() ) {
                     // something goes wrong : all fields must be filled
                     // we need to display an error message
-                    showMessage("Please Verify all fields") ;
+                    showMessage("Please Verify all fields");
                     regBtn.setVisibility(View.VISIBLE);
                     loadingProgress.setVisibility(View.INVISIBLE);
-
-
-                }
-                else {
+                } else if(radioGroup.getCheckedRadioButtonId() == -1) {
+                    showMessage("Please select your role");
+                } else if(mobNo.length() < 10) {
+                    userMobNo.setError("Please enter correct no");
+                } else {
                     // everything is ok and all fields are filled now we can start creating user account
                     // CreateUserAccount method will try to create the user if the email is valid
+                    if (mobNo.length() == 10) {
+                        mobNo = "+91" + mobNo;
+                    }
 
-                    CreateUserAccount(email,name,password);
+                    if (userRadio.isChecked()) {
+                        role = "User";
+                    } else {
+                        role = "Admin";
+                    }
+
+                    if (isOtpSent) {
+                        otp = userOtp.getText().toString();
+                        if (otp.isEmpty()) {
+                            userOtp.setError("Required");
+                            return;
+                        }
+
+                        CreateUserAccount(name, role, otp, otpSent);
+
+                    } else {
+                        PhoneAuthProvider.getInstance().verifyPhoneNumber(mobNo, 60, TimeUnit.SECONDS, RegisterActivity.this, mCallbacks);
+                    }
+
+
                 }
-
-
-
-
-
-
-
-
-
             }
         });
 
@@ -131,12 +194,8 @@ public class RegisterActivity extends AppCompatActivity {
                     BringImagePicker();
 
                 }
-
             }
-
         });
-
-
     }
 
     private void BringImagePicker() {
@@ -144,52 +203,34 @@ public class RegisterActivity extends AppCompatActivity {
                 .setGuidelines(CropImageView.Guidelines.ON)
                 .setAspectRatio(1, 1)
                 .start(RegisterActivity.this);
-
     }
 
-    private void CreateUserAccount(String email, final String name, String password) {
+    private void CreateUserAccount(final String name, final String role, String otp, String otpSent) {
 
+        PhoneAuthCredential authCredential = PhoneAuthProvider.getCredential(otpSent, otp);
 
-        // this method create user account with specific email and password
-
-        mAuth.createUserWithEmailAndPassword(email,password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-
-                            // user account created successfully
-                            showMessage("Account created");
-                            // after we created user account we need to update his profile picture and name
-                            updateUserInfo( name ,pickedImgUri,mAuth.getCurrentUser());
-
-
-
-                        }
-                        else
-                        {
-
-                            // account creation failed
-                            showMessage("account creation failed" + task.getException().getMessage());
-                            regBtn.setVisibility(View.VISIBLE);
-                            loadingProgress.setVisibility(View.INVISIBLE);
-
-                        }
-                    }
-                });
-
-
-
-
-
-
-
+        mAuth.signInWithCredential(authCredential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    // user account created successfully
+                    showMessage("Account created");
+                    // after we created user account we need to update his profile picture and name
+                    updateUserInfo(name ,role, pickedImgUri,mAuth.getCurrentUser());
+                } else {
+                    // account creation failed
+                    showMessage("account creation failed" + task.getException().getMessage());
+                    regBtn.setVisibility(View.VISIBLE);
+                    loadingProgress.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
 
     }
 
 
     // update user photo and name
-    private void updateUserInfo(final String name, Uri pickedImgUri, final FirebaseUser currentUser) {
+    private void updateUserInfo(final String name, final String role, Uri pickedImgUri, final FirebaseUser currentUser) {
 
         // first we need to upload user photo to firebase storage and get url
 
@@ -208,6 +249,18 @@ public class RegisterActivity extends AppCompatActivity {
 
                         // uri contain user image url
 
+                        String userId = currentUser.getUid();
+
+                        mDatabase.child(userId).setValue(role).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Log.d("Role", "onComplete: Completed");
+                                } else {
+                                    Log.d("Role", "onComplete: InComplete");
+                                }
+                            }
+                        });
 
                         UserProfileChangeRequest profleUpdate = new UserProfileChangeRequest.Builder()
                                 .setDisplayName(name)
@@ -232,26 +285,14 @@ public class RegisterActivity extends AppCompatActivity {
                     }
                 });
 
-
-
-
-
             }
         });
-
-
-
-
-
-
     }
 
    private void updateUI() {
 
-       Intent homeActivity = new Intent(getApplicationContext(),Home.class);
-       startActivity(homeActivity);
-        finish();
-
+       startActivity(HomeActivity);
+       finish();
 
     }
 
@@ -284,13 +325,11 @@ public class RegisterActivity extends AppCompatActivity {
 
             }
 
-            else
-            {
+            else {
                 ActivityCompat.requestPermissions(RegisterActivity.this,
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                         PReqCode);
             }
-
         }
         else
             BringImagePicker();

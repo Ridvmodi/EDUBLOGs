@@ -18,14 +18,14 @@
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/login_mail"
+        app:layout_constraintBottom_toTopOf="@+id/login_mob_no"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/userphoto" />
 
     <EditText
-        android:id="@+id/login_mail"
+        android:id="@+id/login_mob_no"
         android:layout_width="265dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -35,8 +35,8 @@
         android:layout_marginBottom="4dp"
         android:background="@drawable/reg_edittext_style"
         android:ems="10"
-        android:hint="Mail Adress"
-        android:inputType="textPersonName"
+        android:hint="Mobile No"
+        android:inputType="phone"
         app:layout_constraintBottom_toTopOf="@+id/guideline3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -49,7 +49,7 @@
         app:layout_constraintGuide_percent="0.50" />
 
     <EditText
-        android:id="@+id/login_password"
+        android:id="@+id/login_otp"
         android:layout_width="265dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -59,8 +59,9 @@
         android:layout_marginRight="8dp"
         android:background="@drawable/reg_edittext_style"
         android:ems="10"
-        android:hint="Password"
-        android:inputType="textPassword"
+        android:hint="Otp Received"
+        android:inputType="phone"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline3" />
@@ -81,7 +82,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_password" />
+        app:layout_constraintTop_toBottomOf="@+id/login_otp" />
 
     <ProgressBar
         android:id="@+id/login_progress"
@@ -97,10 +98,9 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="12dp"
         android:layout_marginBottom="87dp"
         android:text="REGISTER"
-        app:layout_constraintBottom_toTopOf="@+id/login_mail"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/login_photo" />

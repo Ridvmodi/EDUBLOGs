@@ -23,8 +23,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-    <androidx.constraintlayout.widget.Guideline
 
+    <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -44,14 +44,14 @@
         android:layout_marginStart="8dp"
         android:ems="10"
         android:inputType="textPersonName"
-        app:layout_constraintBottom_toTopOf="@+id/regMail"
+        app:layout_constraintBottom_toTopOf="@+id/reg_mob_no"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
         android:background="@drawable/reg_edittext_style"
-        android:hint="Mail"
-        android:id="@+id/regMail"
+        android:hint="Mobile No"
+        android:id="@+id/reg_mob_no"
         android:layout_width="265dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
@@ -60,44 +60,52 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:ems="10"
-        android:inputType="textPersonName"
+        android:inputType="phone"
         app:layout_constraintBottom_toTopOf="@+id/guideline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <EditText
-        android:background="@drawable/reg_edittext_style"
-        android:hint="Password"
-        android:id="@+id/regPassword"
-        android:layout_width="265dp"
+    <RadioGroup
+        android:id="@+id/radio_group"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
-        android:ems="10"
-        android:inputType="textPassword"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline" />
+        app:layout_constraintTop_toTopOf="@+id/guideline" >
+
+        <RadioButton
+            android:id="@+id/user_radio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="User"/>
+
+        <RadioButton
+            android:id="@+id/admin_radio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Admin"/>
+
+    </RadioGroup>
 
     <EditText
         android:background="@drawable/reg_edittext_style"
-        android:hint="Confirm Password"
-        android:id="@+id/regPassword2"
+        android:hint="Enter Otp"
+        android:id="@+id/regOtp"
         android:layout_width="265dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="24dp"
         android:ems="10"
-        android:inputType="textPassword"
+        android:inputType="phone"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/regPassword" />
+        app:layout_constraintTop_toBottomOf="@+id/radio_group" />
 
     <Button
         android:id="@+id/regBtn"
@@ -115,7 +123,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/regPassword2" />
+        app:layout_constraintTop_toBottomOf="@+id/radio_group" />
 
     <ProgressBar
         android:id="@+id/regProgressBar"
@@ -126,4 +134,5 @@
         app:layout_constraintEnd_toEndOf="@+id/regBtn"
         app:layout_constraintStart_toStartOf="@+id/regBtn"
         app:layout_constraintTop_toTopOf="@+id/regBtn" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

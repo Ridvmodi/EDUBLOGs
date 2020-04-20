@@ -8,7 +8,7 @@
 
 
     <ImageView
-        android:scaleType="centerCrop"
+        android:scaleType="fitCenter"
         android:id="@+id/row_post_img"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -16,7 +16,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:background="@drawable/ic_launcher_background" />
+        android:background="#ffffff"
+        android:src="@drawable/document"
+        />
 
     <ImageView
         android:id="@+id/imageView2"

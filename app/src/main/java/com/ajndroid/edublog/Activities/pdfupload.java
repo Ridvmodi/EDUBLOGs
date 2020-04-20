@@ -15,8 +15,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.ajndroid.edublog.R;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -34,10 +38,15 @@ FirebaseDatabase mdatabase;*/
    Button btn_upload;
    StorageReference storageReference;
    DatabaseReference databaseReference;
+
+   private FirebaseAuth mAuth;
+   private DatabaseReference mDatabase;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pdfupload);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 /*fetch=findViewById(R.id.fetchFiles);
 fetch.setOnClickListener(new View.OnClickListener() {
@@ -166,18 +175,40 @@ if (requestCode==9 && grantResults[0]==PackageManager.PERMISSION_GRANTED)
 
         }
         */
-editPDFname = findViewById(R.id.description);
-btn_upload=findViewById(R.id.uploadfile);
+        editPDFname = findViewById(R.id.description);
+        btn_upload=findViewById(R.id.uploadfile);
 
-storageReference= FirebaseStorage.getInstance().getReference();
-databaseReference= FirebaseDatabase.getInstance().getReference("uploads");
-btn_upload.setOnClickListener(new View.OnClickListener() {
-    @Override
-    public void onClick(View v) {
-        selectPDFfile();
+        mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("Roles");
 
-    }
-});
+        mDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String role = dataSnapshot.child(mAuth.getCurrentUser().getUid()).getValue().toString();
+
+                if (role.equals("Admin")) {
+                    btn_upload.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            selectPDFfile();
+
+                        }
+                    });
+                } else {
+                    editPDFname.setVisibility(View.GONE);
+                    btn_upload.setVisibility(View.GONE);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        storageReference= FirebaseStorage.getInstance().getReference();
+        databaseReference= FirebaseDatabase.getInstance().getReference("uploads");
     }
 
     private void selectPDFfile() {

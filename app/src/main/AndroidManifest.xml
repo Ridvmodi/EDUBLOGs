@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".Activities.Fhmnotification"></activity>
-        <activity android:name=".Activities.pdfupload" />
+        <activity android:name=".Activities.pdfupload" android:parentActivityName=".Activities.Home"/>
         <activity android:name=".Activities.FullscreenActivity" />
         <activity android:name=".Activities.RegisterActivity" />
         <activity
@@ -29,7 +29,7 @@
             android:label="@string/title_activity_home"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Activities.PostDetailActivity" />
-        <activity android:name=".Activities.View_pdf_files" />
+        <activity android:name=".Activities.View_pdf_files" android:parentActivityName=".Activities.Home"/>
         <service
             android:name=".Activities.MYmessagingService"
             android:exported="false">
