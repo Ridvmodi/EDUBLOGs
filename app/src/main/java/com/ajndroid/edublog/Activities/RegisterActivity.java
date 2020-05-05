@@ -137,8 +137,16 @@ public class RegisterActivity extends AppCompatActivity {
                     loadingProgress.setVisibility(View.INVISIBLE);
                 } else if(radioGroup.getCheckedRadioButtonId() == -1) {
                     showMessage("Please select your role");
+                    regBtn.setVisibility(View.VISIBLE);
+                    loadingProgress.setVisibility(View.INVISIBLE);
                 } else if(mobNo.length() < 10) {
                     userMobNo.setError("Please enter correct no");
+                    regBtn.setVisibility(View.VISIBLE);
+                    loadingProgress.setVisibility(View.INVISIBLE);
+                } else if(!isChanged) {
+                    showMessage("Please upload your photo");
+                    regBtn.setVisibility(View.VISIBLE);
+                    loadingProgress.setVisibility(View.INVISIBLE);
                 } else {
                     // everything is ok and all fields are filled now we can start creating user account
                     // CreateUserAccount method will try to create the user if the email is valid

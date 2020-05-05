@@ -389,8 +389,7 @@ public class Home extends AppCompatActivity
 
         } else if (id == R.id.nav_profile) {
 
-            getSupportActionBar().setTitle("Profile");
-            getSupportFragmentManager().beginTransaction().replace(R.id.container,new ProfileFragment()).commit();
+            startActivity(new Intent(Home.this, ProfileActivity.class));
 
         } else if (id == R.id.nav_settings) {
 
